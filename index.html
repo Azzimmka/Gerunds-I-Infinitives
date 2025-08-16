@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Verb Master - Gerund & Infinitive Learner</title>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Verb Master - Gerund & Infinitive Learner</title>
+    <!-- Open Graph Tags for beautiful link previews in messengers -->
+    <meta property="og:title" content="Ultimate Verb Master: Learn Gerunds & Infinitives Interactively">
+    <meta property="og:description" content="Master English verbs with quizzes, flashcards, notebook, and more! Perfect for language learners.">
+    <meta property="og:image" content="./logo.jpg"
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* Custom animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .suggestions, .flashcard {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        /* Theme transitions */
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-r from-blue-100 to-white dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center justify-start p-4">
+    <!-- Header -->
+    <header class="w-full max-w-4xl mb-8">
+        <h1 class="text-4xl font-bold text-center text-blue-600 dark:text-blue-400">Ultimate Verb Master ✨</h1>
+        <p class="text-center mt-2 text-gray-600 dark:text-gray-300">Master gerunds and infinitives with quizzes, flashcards, audio, and more!</p>
+        <!-- Theme Toggle -->
+        <button id="themeToggle" class="absolute top-4 right-4 bg-gray-200 dark:bg-gray-700 p-2 rounded-full hover:scale-110 transition">
+            🌙 / ☀️
+        </button>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Verb Checker Section -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Verb Checker 🔍</h2>
+            <div class="relative">
+                <input type="text" id="verbInput" placeholder="Type a verb for suggestions..." class="w-full p-3 border border-blue-300 dark:border-blue-600 rounded-lg dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <ul id="suggestions" class="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden suggestions"></ul>
+            </div>
+            <button onclick="checkVerb()" class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 hover:scale-105 transition mt-4">Check ✅</button>
+            <div id="result" class="mt-6 p-4 bg-green-100 dark:bg-green-800 rounded-lg hidden"></div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Quiz Mode 🧠</h2>
+            <button onclick="startQuiz()" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 hover:scale-105 transition">Start Quiz</button>
+            <div id="quizContainer" class="mt-4 hidden">
+                <p id="quizQuestion" class="font-bold mb-4"></p>
+                <div id="quizOptions" class="space-y-2"></div>
+                <button onclick="submitQuizAnswer()" class="w-full bg-blue-500 text-white p-2 rounded-lg mt-4">Submit</button>
+                <p id="quizFeedback" class="mt-4"></p>
+                <p id="quizScore" class="mt-2 font-bold"></p>
+            </div>
+        </section>
+
+        <!-- Flashcards Section -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl md:col-span-2">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Flashcards 📇</h2>
+            <button onclick="startFlashcards()" class="w-full bg-purple-500 text-white p-3 rounded-lg hover:bg-purple-600 hover:scale-105 transition">Start Flashcards</button>
+            <div id="flashcardContainer" class="mt-4 hidden flex flex-col items-center">
+                <div id="flashcard" class="w-full p-6 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-lg text-center cursor-pointer flashcard" onclick="flipFlashcard()">
+                    <p id="flashcardFront" class="font-bold text-xl"></p>
+                    <p id="flashcardBack" class="hidden"></p>
+                </div>
+                <div class="mt-4 flex space-x-4">
+                    <button onclick="nextFlashcard()" class="bg-blue-500 text-white p-2 rounded">Next ➡️</button>
+                    <button onclick="speakFlashcard()" class="bg-yellow-500 text-white p-2 rounded">Speak 🔊</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Dashboard -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl md:col-span-2">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Your Progress 📊</h2>
+            <div id="progressStats" class="grid grid-cols-2 gap-4">
+                <p id="totalVerbs"></p>
+                <p id="favoritesCount"></p>
+                <p id="quizHighScore"></p>
+                <p id="flashcardsMastered"></p>
+            </div>
+            <button onclick="resetProgress()" class="w-full bg-red-500 text-white p-3 rounded-lg hover:bg-red-600 mt-4">Reset Progress</button>
+        </section>
+
+        <!-- Favorites and Export -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl md:col-span-2">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Favorites & Export ⭐</h2>
+            <ul id="favoritesList" class="list-disc pl-5 mb-4"></ul>
+            <div class="flex space-x-4">
+                <button onclick="exportToCSV()" class="flex-1 bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600">Export CSV</button>
+                <button onclick="exportToPDF()" class="flex-1 bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600">Export PDF</button>
+            </div>
+        </section>
+
+        <!-- Category Filters -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl md:col-span-2">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Filter by Category 🗂️</h2>
+            <select id="categoryFilter" class="w-full p-3 border rounded-lg mb-4 dark:bg-gray-700">
+                <option value="all">All Categories</option>
+                <option value="gerund">Gerund Only</option>
+                <option value="infinitive">Infinitive Only</option>
+                <option value="both_no_change">Both (No Change)</option>
+                <option value="both_change">Both (Change in Meaning)</option>
+            </select>
+            <ul id="filteredVerbs" class="list-disc pl-5 max-h-48 overflow-y-auto"></ul>
+        </section>
+
+        <!-- Sentence Generator -->
+        <section class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-2xl md:col-span-2">
+            <h2 class="text-2xl font-semibold mb-4 text-center">Sentence Generator ✍️</h2>
+            <input type="text" id="genVerbInput" placeholder="Enter verb for sentence..." class="w-full p-3 border rounded-lg mb-4 dark:bg-gray-700">
+            <button onclick="generateSentence()" class="w-full bg-teal-500 text-white p-3 rounded-lg hover:bg-teal-600">Generate</button>
+            <p id="generatedSentence" class="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg"></p>
+        </section>
+    </main>
+
+    <script>
+        // Centralized Verb Repository (Data Layer)
+        const verbRepo = {
+            data: {
+                // Extended dictionary with synonyms and notes for learning
+                "abhor": { category: "gerund", example: "I abhor doing that.", translation: "ненавидеть", synonyms: ["hate", "detest"], note: "Strong dislike, often moral." },
+                "acknowledge": { category: "gerund", example: "He acknowledged making a mistake.", translation: "признавать", synonyms: ["admit", "confess"], note: "Accept as true." },
+                // ... (All other verbs from previous, extended similarly)
+                "admit": { category: "gerund", example: "She admitted stealing the money.", translation: "признавать", synonyms: ["confess", "acknowledge"], note: "Confess to something bad." },
+                "advise": { category: "gerund", example: "I advise seeing a doctor.", translation: "советовать", synonyms: ["recommend", "suggest"], note: "Give advice." },
+                "allow": { category: "gerund", example: "They allow smoking here.", translation: "позволять", synonyms: ["permit", "let"], note: "Give permission." },
+                "anticipate": { category: "gerund", example: "We anticipate winning.", translation: "предвидеть", synonyms: ["expect", "foresee"], note: "Look forward to." },
+                "appreciate": { category: "gerund", example: "I appreciate helping.", translation: "ценить", synonyms: ["value", "cherish"], note: "Be grateful for." },
+                "avoid": { category: "gerund", example: "Avoid eating too much.", translation: "избегать", synonyms: ["evade", "shun"], note: "Stay away from." },
+                "be worth": { category: "gerund", example: "It's worth trying.", translation: "стоить", synonyms: ["deserve", "merit"], note: "Have value." },
+                "can’t help": { category: "gerund", example: "I can’t help laughing.", translation: "не мочь удержаться", synonyms: ["can't resist"], note: "Unable to stop." },
+                "celebrate": { category: "gerund", example: "We celebrate winning.", translation: "праздновать", synonyms: ["commemorate"], note: "Mark with festivities." },
+                "confess": { category: "gerund", example: "He confessed lying.", translation: "признаваться", synonyms: ["admit"], note: "Admit guilt." },
+                "consider": { category: "gerund", example: "Consider buying it.", translation: "рассматривать", synonyms: ["think about"], note: "Think carefully." },
+                "defend": { category: "gerund", example: "She defended saying that.", translation: "защищать", synonyms: ["protect"], note: "Support against attack." },
+                "delay": { category: "gerund", example: "Delay starting.", translation: "откладывать", synonyms: ["postpone"], note: "Put off." },
+                "detest": { category: "gerund", example: "I detest waiting.", translation: "ненавидеть", synonyms: ["abhor"], note: "Hate intensely." },
+                "discontinue": { category: "gerund", example: "Discontinue using it.", translation: "прекращать", synonyms: ["stop"], note: "End something." },
+                "discuss": { category: "gerund", example: "We discuss going.", translation: "обсуждать", synonyms: ["talk about"], note: "Talk in detail." },
+                "dislike": { category: "gerund", example: "I dislike running.", translation: "не любить", synonyms: ["hate"], note: "Not like." },
+                "dispute": { category: "gerund", example: "They dispute owning it.", translation: "оспаривать", synonyms: ["argue"], note: "Question validity." },
+                "dread": { category: "gerund", example: "I dread thinking about it.", translation: "бояться", synonyms: ["fear"], note: "Fear greatly." },
+                "endure": { category: "gerund", example: "She endured suffering.", translation: "терпеть", synonyms: ["bear"], note: "Tolerate pain." },
+                "enjoy": { category: "gerund", example: "I enjoy reading.", translation: "наслаждаться", synonyms: ["like"], note: "Take pleasure in." },
+                "escape": { category: "gerund", example: "He escaped being caught.", translation: "избегать", synonyms: ["avoid"], note: "Get away." },
+                "evade": { category: "gerund", example: "Evade answering.", translation: "уклоняться", synonyms: ["dodge"], note: "Avoid cleverly." },
+                "explain": { category: "gerund", example: "Explain doing that.", translation: "объяснять", synonyms: ["clarify"], note: "Make clear." },
+                "fancy": { category: "gerund", example: "I fancy eating ice cream.", translation: "хотеть", synonyms: ["like"], note: "Feel desire for." },
+                "fear": { category: "gerund", example: "Fear failing.", translation: "бояться", synonyms: ["dread"], note: "Be afraid of." },
+                "feel like": { category: "gerund", example: "I feel like dancing.", translation: "хотеть", synonyms: ["want"], note: "Have inclination." },
+                "feign": { category: "gerund", example: "He feigned sleeping.", translation: "притворяться", synonyms: ["pretend"], note: "Fake something." },
+                "finish": { category: "gerund", example: "Finish eating.", translation: "заканчивать", synonyms: ["complete"], note: "Bring to end." },
+                "forgive": { category: "gerund", example: "Forgive forgetting.", translation: "прощать", synonyms: ["pardon"], note: "Stop blaming." },
+                "give up": { category: "gerund", example: "Give up smoking.", translation: "отказываться", synonyms: ["quit"], note: "Stop habit." },
+                "keep": { category: "gerund", example: "Keep trying.", translation: "продолжать", synonyms: ["continue"], note: "Continue action." },
+                "keep on": { category: "gerund", example: "Keep on working.", translation: "продолжать", synonyms: ["persist"], note: "Persist in." },
+                "mention": { category: "gerund", example: "Mention seeing him.", translation: "упоминать", synonyms: ["refer to"], note: "Speak briefly." },
+                "mind": { category: "gerund", example: "Do you mind waiting?", translation: "возражать", synonyms: ["object"], note: "Be bothered by." },
+                "miss": { category: "gerund", example: "I miss playing.", translation: "скучать", synonyms: ["long for"], note: "Feel absence." },
+                "necessitate": { category: "gerund", example: "It necessitates changing.", translation: "требовать", synonyms: ["require"], note: "Make necessary." },
+                "omit": { category: "gerund", example: "Omit adding salt.", translation: "пропускать", synonyms: ["leave out"], note: "Leave out." },
+                "permit": { category: "gerund", example: "Permit entering.", translation: "позволять", synonyms: ["allow"], note: "Give permission." },
+                "picture": { category: "gerund", example: "Picture living there.", translation: "представлять", synonyms: ["imagine"], note: "Imagine visually." },
+                "postpone": { category: "gerund", example: "Postpone meeting.", translation: "откладывать", synonyms: ["delay"], note: "Put off." },
+                "practice": { category: "gerund", example: "Practice speaking.", translation: "практиковать", synonyms: ["rehearse"], note: "Do repeatedly." },
+                "prevent": { category: "gerund", example: "Prevent happening.", translation: "предотвращать", synonyms: ["stop"], note: "Stop from occurring." },
+                "put off": { category: "gerund", example: "Put off doing it.", translation: "откладывать", synonyms: ["postpone"], note: "Delay action." },
+                "recall": { category: "gerund", example: "Recall meeting her.", translation: "вспоминать", synonyms: ["remember"], note: "Remember past." },
+                "recollect": { category: "gerund", example: "Recollect visiting.", translation: "вспоминать", synonyms: ["recall"], note: "Remember details." },
+                "recommend": { category: "gerund", example: "Recommend trying.", translation: "рекомендовать", synonyms: ["advise"], note: "Suggest favorably." },
+                "report": { category: "gerund", example: "Report seeing.", translation: "сообщать", synonyms: ["inform"], note: "Give account." },
+                "resent": { category: "gerund", example: "Resent doing that.", translation: "возмущаться", synonyms: ["begrudge"], note: "Feel bitter." },
+                "resist": { category: "gerund", example: "Resist eating.", translation: "сопротивляться", synonyms: ["withstand"], note: "Oppose force." },
+                "resume": { category: "gerund", example: "Resume talking.", translation: "возобновлять", synonyms: ["continue"], note: "Start again." },
+                "risk": { category: "gerund", example: "Risk losing.", translation: "рисковать", synonyms: ["chance"], note: "Expose to danger." },
+                "shirk": { category: "gerund", example: "Shirk working.", translation: "избегать", synonyms: ["avoid"], note: "Avoid duty." },
+                "shun": { category: "gerund", example: "Shun meeting.", translation: "избегать", synonyms: ["avoid"], note: "Avoid deliberately." },
+                "suggest": { category: "gerund", example: "Suggest going.", translation: "предлагать", synonyms: ["recommend"], note: "Put forward." },
+                "support": { category: "gerund", example: "Support changing.", translation: "поддерживать", synonyms: ["back"], note: "Help or encourage." },
+                "tolerate": { category: "gerund", example: "Tolerate waiting.", translation: "терпеть", synonyms: ["endure"], note: "Allow without opposition." },
+                "understand": { category: "gerund", example: "Understand doing it.", translation: "понимать", synonyms: ["comprehend"], note: "Grasp meaning." },
+                "urge": { category: "gerund", example: "Urge trying.", translation: "побуждать", synonyms: ["encourage"], note: "Strongly recommend." },
+                "warrant": { category: "gerund", example: "Warrant checking.", translation: "оправдывать", synonyms: ["justify"], note: "Justify action." },
+                "agree": { category: "infinitive", example: "I agree to help.", translation: "соглашаться", synonyms: ["consent"], note: "Be of same opinion." },
+                "appear": { category: "infinitive", example: "It appears to rain.", translation: "казаться", synonyms: ["seem"], note: "Give impression." },
+                "arrange": { category: "infinitive", example: "Arrange to meet.", translation: "организовывать", synonyms: ["organize"], note: "Plan in advance." },
+                "ask": { category: "infinitive", example: "Ask to join.", translation: "просить", synonyms: ["request"], note: "Make request." },
+                "attempt": { category: "infinitive", example: "Attempt to climb.", translation: "пытаться", synonyms: ["try"], note: "Make effort." },
+                "beg": { category: "infinitive", example: "Beg to stay.", translation: "умолять", synonyms: ["plead"], note: "Ask earnestly." },
+                "can afford": { category: "infinitive", example: "I can afford to buy.", translation: "мочь позволить", synonyms: ["be able"], note: "Have resources for." },
+                "can’t afford": { category: "infinitive", example: "I can’t afford to buy.", translation: "не мочь позволить", synonyms: ["can't manage"], note: "Lack resources." },
+                "can wait": { category: "infinitive", example: "I can wait to see.", translation: "мочь ждать", synonyms: ["be patient"], note: "Able to delay." },
+                "can’t wait": { category: "infinitive", example: "I can’t wait to see.", translation: "не терпится", synonyms: ["eager"], note: "Impatient to." },
+                "care": { category: "infinitive", example: "I care to know.", translation: "заботиться", synonyms: ["mind"], note: "Be concerned." },
+                "chance": { category: "infinitive", example: "Chance to win.", translation: "рисковать", synonyms: ["risk"], note: "Take risk." },
+                "choose": { category: "infinitive", example: "Choose to go.", translation: "выбирать", synonyms: ["select"], note: "Pick one." },
+                "claim": { category: "infinitive", example: "Claim to know.", translation: "утверждать", synonyms: ["assert"], note: "State as true." },
+                "come": { category: "infinitive", example: "Come to visit.", translation: "приходить", synonyms: ["arrive"], note: "Move toward." },
+                "consent": { category: "infinitive", example: "Consent to marry.", translation: "соглашаться", synonyms: ["agree"], note: "Give permission." },
+                "dare": { category: "infinitive", example: "Dare to try.", translation: "осмеливаться", synonyms: ["venture"], note: "Have courage." },
+                "decide": { category: "infinitive", example: "Decide to leave.", translation: "решать", synonyms: ["resolve"], note: "Make choice." },
+                "demand": { category: "infinitive", example: "Demand to see.", translation: "требовать", synonyms: ["require"], note: "Ask authoritatively." },
+                "deserve": { category: "infinitive", example: "Deserve to win.", translation: "заслуживать", synonyms: ["merit"], note: "Be worthy." },
+                "determine": { category: "infinitive", example: "Determine to succeed.", translation: "решать", synonyms: ["resolve"], note: "Decide firmly." },
+                "elect": { category: "infinitive", example: "Elect to run.", translation: "выбирать", synonyms: ["choose"], note: "Choose by voting." },
+                "endeavor": { category: "infinitive", example: "Endeavor to improve.", translation: "стараться", synonyms: ["strive"], note: "Try hard." },
+                "expect": { category: "infinitive", example: "Expect to arrive.", translation: "ожидать", synonyms: ["anticipate"], note: "Think will happen." },
+                "fail": { category: "infinitive", example: "Fail to understand.", translation: "не удаваться", synonyms: ["miss"], note: "Not succeed." },
+                "get": { category: "infinitive", example: "Get to know.", translation: "получать", synonyms: ["obtain"], note: "Become familiar." },
+                "grow": { category: "infinitive", example: "Grow to like.", translation: "расти", synonyms: ["develop"], note: "Become gradually." },
+                "guarantee": { category: "infinitive", example: "Guarantee to work.", translation: "гарантировать", synonyms: ["assure"], note: "Promise certainty." },
+                "hesitate": { category: "infinitive", example: "Hesitate to ask.", translation: "колебаться", synonyms: ["pause"], note: "Pause in doubt." },
+                "hope": { category: "infinitive", example: "Hope to win.", translation: "надеяться", synonyms: ["wish"], note: "Desire with expectation." },
+                "hurry": { category: "infinitive", example: "Hurry to finish.", translation: "спешить", synonyms: ["rush"], note: "Move quickly." },
+                "incline": { category: "infinitive", example: "Incline to believe.", translation: "склоняться", synonyms: ["tend"], note: "Have tendency." },
+                "learn": { category: "infinitive", example: "Learn to swim.", translation: "учиться", synonyms: ["study"], note: "Acquire knowledge." },
+                "manage": { category: "infinitive", example: "Manage to escape.", translation: "удаться", synonyms: ["succeed"], note: "Succeed in." },
+                "mean": { category: "infinitive", example: "Mean to say.", translation: "иметь в виду", synonyms: ["intend"], note: "Intend." },
+                "need": { category: "infinitive", example: "Need to go.", translation: "нуждаться", synonyms: ["require"], note: "Require as essential." },
+                "neglect": { category: "infinitive", example: "Neglect to mention.", translation: "пренебрегать", synonyms: ["ignore"], note: "Fail to care." },
+                "offer": { category: "infinitive", example: "Offer to help.", translation: "предлагать", synonyms: ["propose"], note: "Present for acceptance." },
+                "pay": { category: "infinitive", example: "Pay to see.", translation: "платить", synonyms: ["compensate"], note: "Give money for." },
+                "plan": { category: "infinitive", example: "Plan to travel.", translation: "планировать", synonyms: ["intend"], note: "Arrange in advance." },
+                "prepare": { category: "infinitive", example: "Prepare to leave.", translation: "готовиться", synonyms: ["ready"], note: "Make ready." },
+                "pretend": { category: "infinitive", example: "Pretend to sleep.", translation: "притворяться", synonyms: ["feign"], note: "Act falsely." },
+                "profess": { category: "infinitive", example: "Profess to know.", translation: "заявлять", synonyms: ["claim"], note: "Declare openly." },
+                "promise": { category: "infinitive", example: "Promise to come.", translation: "обещать", synonyms: ["vow"], note: "Give assurance." },
+                "prove": { category: "infinitive", example: "Prove to be.", translation: "доказывать", synonyms: ["demonstrate"], note: "Show truth." },
+                "refuse": { category: "infinitive", example: "Refuse to accept.", translation: "отказываться", synonyms: ["decline"], note: "Not accept." },
+                "remain": { category: "infinitive", example: "Remain to finish.", translation: "оставаться", synonyms: ["stay"], note: "Continue to be." },
+                "request": { category: "infinitive", example: "Request to speak.", translation: "просить", synonyms: ["ask"], note: "Ask politely." },
+                "resolve": { category: "infinitive", example: "Resolve to try.", translation: "решать", synonyms: ["decide"], note: "Decide firmly." },
+                "say": { category: "infinitive", example: "Say to be.", translation: "говорить", synonyms: ["state"], note: "Express in words." },
+                "seek": { category: "infinitive", example: "Seek to understand.", translation: "искать", synonyms: ["search"], note: "Try to find." },
+                "seem": { category: "infinitive", example: "Seem to know.", translation: "казаться", synonyms: ["appear"], note: "Give appearance." },
+                "shudder": { category: "infinitive", example: "Shudder to think.", translation: "содрогаться", synonyms: ["shiver"], note: "Tremble with horror." },
+                "strive": { category: "infinitive", example: "Strive to succeed.", translation: "стремиться", synonyms: ["endeavor"], note: "Make great effort." },
+                "struggle": { category: "infinitive", example: "Struggle to survive.", translation: "бороться", synonyms: ["fight"], note: "Make forceful efforts." },
+                "swear": { category: "infinitive", example: "Swear to tell.", translation: "клясться", synonyms: ["vow"], note: "Promise solemnly." },
+                "tend": { category: "infinitive", example: "Tend to forget.", translation: "склоняться", synonyms: ["incline"], note: "Have tendency." },
+                "threaten": { category: "infinitive", example: "Threaten to quit.", translation: "угрожать", synonyms: ["menace"], note: "Express intention to harm." },
+                "turn out": { category: "infinitive", example: "Turn out to be.", translation: "оказываться", synonyms: ["prove"], note: "Prove to be." },
+                "venture": { category: "infinitive", example: "Venture to say.", translation: "осмеливаться", synonyms: ["dare"], note: "Dare to do." },
+                "volunteer": { category: "infinitive", example: "Volunteer to help.", translation: "предлагать себя", synonyms: ["offer"], note: "Offer freely." },
+                "wait": { category: "infinitive", example: "Wait to see.", translation: "ждать", synonyms: ["await"], note: "Remain in expectation." },
+                "want": { category: "infinitive", example: "Want to eat.", translation: "хотеть", synonyms: ["desire"], note: "Desire to have." },
+                "wish": { category: "infinitive", example: "Wish to go.", translation: "желать", synonyms: ["hope"], note: "Feel or express desire." },
+                "would like": { category: "infinitive", example: "Would like to see.", translation: "хотелось бы", synonyms: ["prefer"], note: "Polite want." },
+                "yearn": { category: "infinitive", example: "Yearn to travel.", translation: "страстно желать", synonyms: ["long"], note: "Desire strongly." },
+                "begin": { category: "both_no_change", example: "Begin to rain or begin raining.", translation: "начинать", synonyms: ["start"], note: "Start action." },
+                "can’t bear": { category: "both_no_change", example: "Can’t bear to see or can’t bear seeing.", translation: "не выносить", synonyms: ["can't tolerate"], note: "Unable to endure." },
+                "can’t stand": { category: "both_no_change", example: "Can’t stand to wait or can’t stand waiting.", translation: "не терпеть", synonyms: ["can't endure"], note: "Strongly dislike." },
+                "continue": { category: "both_no_change", example: "Continue to work or continue working.", translation: "продолжать", synonyms: ["keep"], note: "Go on with." },
+                "hate": { category: "both_no_change", example: "Hate to lose or hate losing.", translation: "ненавидеть", synonyms: ["detest"], note: "Feel intense dislike." },
+                "like": { category: "both_no_change", example: "Like to play or like playing.", translation: "нравиться", synonyms: ["enjoy"], note: "Find pleasant." },
+                "love": { category: "both_no_change", example: "Love to eat or love eating.", translation: "любить", synonyms: ["adore"], note: "Feel deep affection." },
+                "prefer": { category: "both_no_change", example: "Prefer to walk or prefer walking.", translation: "предпочитать", synonyms: ["favor"], note: "Like better." },
+                "propose": { category: "both_no_change", example: "Propose to go or propose going.", translation: "предлагать", synonyms: ["suggest"], note: "Put forward." },
+                "start": { category: "both_no_change", example: "Start to rain or start raining.", translation: "начинать", synonyms: ["begin"], note: "Begin action." },
+                "forget": { category: "both_change", infinitive: "I forgot to meet him. (Я не встретил его, потому что забыл это сделать.)", gerund: "I forgot meeting him. (У меня нет воспоминания о встрече с ним раньше.)", translation: "забывать", synonyms: ["overlook"], note: "Fail to remember." },
+                "go on": { category: "both_change", infinitive: "He went on to learn English and French. (Он закончил один период и начал учить английский и французский.)", gerund: "He went on learning English and French. (Он продолжал учить английский и французский.)", translation: "продолжать", synonyms: ["continue"], note: "Continue or move to next." },
+                "quit": { category: "both_change", infinitive: "She quit to work here. (Она уволилась с другой работы, чтобы работать здесь.)", gerund: "She quit working here. (Она уволилась с работы здесь. Она больше не работает здесь.)", translation: "бросать", synonyms: ["stop"], note: "Stop or leave." },
+                "regret": { category: "both_change", infinitive: "I regret to tell you that we can’t hire you. (Мне жаль говорить вам, что мы не можем вас нанять.)", gerund: "I regret promising to help you. (Мне жаль, что я пообещал помочь.)", translation: "сожалеть", synonyms: ["rue"], note: "Feel sorry about." },
+                "remember": { category: "both_change", infinitive: "She remembered to visit her grandmother. (Она не забыла посетить бабушку.)", gerund: "She remembered visiting her grandmother. (У неё были воспоминания об этом визите.)", translation: "помнить", synonyms: ["recall"], note: "Have in mind." },
+                "stop": { category: "both_change", infinitive: "I stopped to call you. (Я остановился, чтобы позвонить вам.)", gerund: "I stopped calling you. (Я перестал звонить вам.)", translation: "останавливаться", synonyms: ["halt"], note: "Cease or pause." },
+                "try": { category: "both_change", infinitive: "I tried to open the window. (Я пытался открыть окно, но не смог.)", gerund: "I tried opening the window. (Я попробовал открыть окно как вариант.)", translation: "пытаться", synonyms: ["attempt"], note: "Make effort or experiment." }
+            },
+            getAll: function() {
+                return Object.keys(this.data);
+            },
+            getByCategory: function(cat) {
+                return this.getAll().filter(v => this.data[v].category === cat || cat === 'all');
+            },
+            getRandom: function() {
+                const keys = this.getAll();
+                return keys[Math.floor(Math.random() * keys.length)];
+            }
+        };
+
+        // State Management with LocalStorage
+        const stateManager = {
+            keys: {
+                favorites: 'verbFavorites',
+                quizScore: 'quizHighScore',
+                flashcardsMastered: 'flashcardsMastered',
+                theme: 'appTheme'
+            },
+            get: function(key) {
+                try {
+                    return JSON.parse(localStorage.getItem(key)) || [];
+                } catch (e) {
+                    console.error('LocalStorage get error:', e);
+                    return [];
+                }
+            },
+            set: function(key, value) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(value));
+                } catch (e) {
+                    console.error('LocalStorage set error:', e);
+                }
+            },
+            addFavorite: function(verb) {
+                let favs = this.get(this.keys.favorites);
+                if (!favs.includes(verb)) {
+                    favs.push(verb);
+                    this.set(this.keys.favorites, favs);
+                }
+                updateFavorites();
+            },
+            removeFavorite: function(verb) {
+                let favs = this.get(this.keys.favorites).filter(v => v !== verb);
+                this.set(this.keys.favorites, favs);
+                updateFavorites();
+            },
+            updateQuizScore: function(score) {
+                let high = this.get(this.keys.quizScore) || 0;
+                if (score > high) {
+                    this.set(this.keys.quizScore, score);
+                }
+            },
+            updateFlashcardsMastered: function(count) {
+                this.set(this.keys.flashcardsMastered, count);
+            },
+            getTheme: function() {
+                return localStorage.getItem(this.keys.theme) || 'light';
+            },
+            setTheme: function(theme) {
+                localStorage.setItem(this.keys.theme, theme);
+                document.body.classList.toggle('dark', theme === 'dark');
+            },
+            reset: function() {
+                Object.values(this.keys).forEach(k => localStorage.removeItem(k));
+                location.reload();
+            }
+        };
+
+        // Audio Service using Web Speech API
+        const audioService = {
+            speak: function(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'en-US';
+                    speechSynthesis.speak(utterance);
+                } else {
+                    alert('Your browser does not support speech synthesis.');
+                }
+            }
+        };
+
+        // Quiz Factory
+        const quizFactory = {
+            currentQuestion: null,
+            score: 0,
+            questionsAsked: 0,
+            totalQuestions: 10,
+            generateQuestion: function() {
+                const verb = verbRepo.getRandom();
+                const cat = verbRepo.data[verb].category;
+                let question = `What form does "${verb}" follow?`;
+                let options = ['Gerund', 'Infinitive', 'Both (no change)', 'Both (change)'];
+                let correct = '';
+                if (cat === 'gerund') correct = 'Gerund';
+                else if (cat === 'infinitive') correct = 'Infinitive';
+                else if (cat === 'both_no_change') correct = 'Both (no change)';
+                else correct = 'Both (change)';
+                return { question, options: options.sort(() => Math.random() - 0.5), correct, verb };
+            },
+            start: function() {
+                this.score = 0;
+                this.questionsAsked = 0;
+                document.getElementById('quizContainer').classList.remove('hidden');
+                this.nextQuestion();
+            },
+            nextQuestion: function() {
+                if (this.questionsAsked >= this.totalQuestions) {
+                    this.end();
+                    return;
+                }
+                this.currentQuestion = this.generateQuestion();
+                document.getElementById('quizQuestion').textContent = this.currentQuestion.question;
+                const optionsDiv = document.getElementById('quizOptions');
+                optionsDiv.innerHTML = '';
+                this.currentQuestion.options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.textContent = opt;
+                    btn.classList.add('w-full', 'p-2', 'bg-gray-200', 'dark:bg-gray-600', 'rounded', 'mb-2', 'hover:bg-gray-300', 'dark:hover:bg-gray-500');
+                    btn.onclick = () => this.checkAnswer(opt);
+                    optionsDiv.appendChild(btn);
+                });
+                document.getElementById('quizFeedback').textContent = '';
+                this.questionsAsked++;
+            },
+            checkAnswer: function(selected) {
+                const correct = this.currentQuestion.correct;
+                const feedback = document.getElementById('quizFeedback');
+                if (selected === correct) {
+                    feedback.textContent = 'Correct! 🎉';
+                    feedback.classList.add('text-green-500');
+                    this.score++;
+                } else {
+                    feedback.textContent = `Wrong! Correct is ${correct}. ❌`;
+                    feedback.classList.add('text-red-500');
+                }
+                document.getElementById('quizScore').textContent = `Score: ${this.score} / ${this.questionsAsked}`;
+                setTimeout(() => this.nextQuestion(), 1500);
+            },
+            end: function() {
+                document.getElementById('quizContainer').classList.add('hidden');
+                alert(`Quiz Over! Final Score: ${this.score} / ${this.totalQuestions}`);
+                stateManager.updateQuizScore(this.score);
+                updateProgress();
+            }
+        };
+
+        // Flashcard Manager
+        const flashcardManager = {
+            deck: [],
+            currentIndex: 0,
+            mastered: 0,
+            generateDeck: function() {
+                this.deck = verbRepo.getAll().sort(() => Math.random() - 0.5).slice(0, 20); // Random 20 for session
+                this.currentIndex = 0;
+                this.mastered = 0;
+            },
+            start: function() {
+                this.generateDeck();
+                document.getElementById('flashcardContainer').classList.remove('hidden');
+                this.showCard();
+            },
+            showCard: function() {
+                const verb = this.deck[this.currentIndex];
+                const data = verbRepo.data[verb];
+                document.getElementById('flashcardFront').textContent = verb + ' (' + data.translation + ')';
+                let back = `Category: ${data.category}\nExample: ${data.example || data.infinitive + '\n' + data.gerund}\nSynonyms: ${data.synonyms.join(', ')}\nNote: ${data.note}`;
+                document.getElementById('flashcardBack').textContent = back;
+            },
+            flip: function() {
+                const front = document.getElementById('flashcardFront');
+                const back = document.getElementById('flashcardBack');
+                front.classList.toggle('hidden');
+                back.classList.toggle('hidden');
+            },
+            next: function() {
+                this.currentIndex = (this.currentIndex + 1) % this.deck.length;
+                document.getElementById('flashcardFront').classList.remove('hidden');
+                document.getElementById('flashcardBack').classList.add('hidden');
+                this.showCard();
+                this.mastered++;
+                if (this.currentIndex === 0) {
+                    stateManager.updateFlashcardsMastered(this.mastered);
+                    updateProgress();
+                }
+            },
+            speak: function() {
+                const verb = this.deck[this.currentIndex];
+                audioService.speak(verb + '. Example: ' + verbRepo.data[verb].example);
+            }
+        };
+
+        // Sentence Generator Templates
+        const sentenceTemplates = {
+            gerund: ['I enjoy [verb]ing every day.', 'Avoid [verb]ing if possible.', 'He admitted [verb]ing the crime.'],
+            infinitive: ['I want to [verb] soon.', 'She decided to [verb] yesterday.', 'They plan to [verb] next week.'],
+            both_no_change: ['I like to [verb] or [verb]ing.', 'We prefer to [verb] or [verb]ing.'],
+            both_change: ['Remember to [verb] (infinitive meaning).', 'Remember [verb]ing (gerund meaning).']
+        };
+
+        function generateSentence() {
+            const verb = document.getElementById('genVerbInput').value.trim().toLowerCase();
+            if (!verbRepo.data[verb]) {
+                document.getElementById('generatedSentence').textContent = 'Verb not found!';
+                return;
+            }
+            const cat = verbRepo.data[verb].category;
+            const templates = sentenceTemplates[cat] || sentenceTemplates.gerund;
+            const template = templates[Math.floor(Math.random() * templates.length)];
+            const sentence = template.replace('[verb]', verb);
+            document.getElementById('generatedSentence').textContent = sentence;
+            audioService.speak(sentence);
+        }
+
+        // UI Update Functions
+        function updateProgress() {
+            const total = verbRepo.getAll().length;
+            const favs = stateManager.get(stateManager.keys.favorites).length;
+            const highScore = stateManager.get(stateManager.keys.quizScore) || 0;
+            const mastered = stateManager.get(stateManager.keys.flashcardsMastered) || 0;
+            document.getElementById('totalVerbs').innerHTML = `<span class="font-bold">Total Verbs:</span> ${total}`;
+            document.getElementById('favoritesCount').innerHTML = `<span class="font-bold">Favorites:</span> ${favs}`;
+            document.getElementById('quizHighScore').innerHTML = `<span class="font-bold">Quiz High Score:</span> ${highScore}`;
+            document.getElementById('flashcardsMastered').innerHTML = `<span class="font-bold">Flashcards Mastered:</span> ${mastered}`;
+        }
+
+        function updateFavorites() {
+            const list = document.getElementById('favoritesList');
+            list.innerHTML = '';
+            stateManager.get(stateManager.keys.favorites).forEach(verb => {
+                const li = document.createElement('li');
+                li.textContent = verb;
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = 'Remove';
+                removeBtn.classList.add('ml-2', 'text-red-500');
+                removeBtn.onclick = () => stateManager.removeFavorite(verb);
+                li.appendChild(removeBtn);
+                list.appendChild(li);
+            });
+            updateProgress();
+        }
+
+        function updateFilteredVerbs() {
+            const cat = document.getElementById('categoryFilter').value;
+            const list = document.getElementById('filteredVerbs');
+            list.innerHTML = '';
+            verbRepo.getByCategory(cat).forEach(verb => {
+                const li = document.createElement('li');
+                li.textContent = verb;
+                list.appendChild(li);
+            });
+        }
+
+        // Event Listeners and Init
+        document.addEventListener('DOMContentLoaded', () => {
+            stateManager.setTheme(stateManager.getTheme());
+            document.getElementById('themeToggle').onclick = () => {
+                const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+                stateManager.setTheme(newTheme);
+            };
+            document.getElementById('verbInput').addEventListener('input', handleAutocomplete);
+            document.getElementById('categoryFilter').addEventListener('change', updateFilteredVerbs);
+            updateProgress();
+            updateFavorites();
+            updateFilteredVerbs();
+        });
+
+        // Autocomplete Handler
+        function handleAutocomplete() {
+            const val = this.value.trim().toLowerCase();
+            const suggestions = document.getElementById('suggestions');
+            suggestions.innerHTML = '';
+            if (!val) return suggestions.classList.add('hidden');
+            const matches = verbRepo.getAll().filter(verb => verb.startsWith(val));
+            if (!matches.length) return suggestions.classList.add('hidden');
+            matches.forEach(match => {
+                const li = document.createElement('li');
+                li.textContent = match;
+                li.classList.add('p-2', 'hover:bg-blue-100', 'dark:hover:bg-blue-900', 'cursor-pointer');
+                li.onclick = () => {
+                    this.value = match;
+                    suggestions.classList.add('hidden');
+                    checkVerb();
+                };
+                suggestions.appendChild(li);
+            });
+            suggestions.classList.remove('hidden');
+        }
+
+        // Verb Check Function
+        function checkVerb() {
+            const inputVal = document.getElementById('verbInput').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            resultDiv.classList.remove('hidden', 'bg-red-100', 'dark:bg-red-800');
+            resultDiv.classList.add('bg-green-100', 'dark:bg-green-800');
+            if (!inputVal) {
+                resultDiv.innerHTML = '<p class="text-red-500 font-bold">Enter a verb! ❌</p>';
+                resultDiv.classList.add('bg-red-100', 'dark:bg-red-800');
+                return;
+            }
+            const verbData = verbRepo.data[inputVal];
+            if (!verbData) {
+                resultDiv.innerHTML = '<p class="text-red-500 font-bold">Verb not found! ❌</p>';
+                resultDiv.classList.add('bg-red-100', 'dark:bg-red-800');
+                return;
+            }
+            let output = `<p class="font-bold text-lg">Verb: ${inputVal} 📖</p>`;
+            output += `<p class="italic">Translation: ${verbData.translation}</p>`;
+            output += `<p>Synonyms: ${verbData.synonyms.join(', ')}</p>`;
+            output += `<p>Note: ${verbData.note}</p>`;
+            if (verbData.category === "gerund") {
+                output += '<p>Uses: Gerund (verb + ing) 🔄</p>';
+                output += `<p>Example: ${verbData.example}</p>`;
+            } else if (verbData.category === "infinitive") {
+                output += '<p>Uses: Infinitive (to + verb) ➡️</p>';
+                output += `<p>Example: ${verbData.example}</p>`;
+            } else if (verbData.category === "both_no_change") {
+                output += '<p>Uses: Gerund or Infinitive (little change) ⚖️</p>';
+                output += `<p>Example: ${verbData.example}</p>`;
+            } else {
+                output += '<p>Uses: Gerund or Infinitive (meaning changes) ❗</p>';
+                output += `<p>Infinitive: ${verbData.infinitive}</p>`;
+                output += `<p>Gerund: ${verbData.gerund}</p>`;
+            }
+            const favBtn = `<button onclick="stateManager.addFavorite('${inputVal}')" class="bg-yellow-500 text-white p-1 rounded mt-2">Add to Favorites ⭐</button>`;
+            output += favBtn;
+            resultDiv.innerHTML = output;
+            audioService.speak(inputVal + '. ' + (verbData.example || verbData.infinitive));
+        }
+
+        // Quiz Starters
+        function startQuiz() {
+            quizFactory.start();
+        }
+
+        function submitQuizAnswer() {
+            // Placeholder, actual check in factory
+        }
+
+        // Flashcard Starters
+        function startFlashcards() {
+            flashcardManager.start();
+        }
+
+        function flipFlashcard() {
+            flashcardManager.flip();
+        }
+
+        function nextFlashcard() {
+            flashcardManager.next();
+        }
+
+        function speakFlashcard() {
+            flashcardManager.speak();
+        }
+
+        // Export Functions
+        function exportToCSV() {
+            const favs = stateManager.get(stateManager.keys.favorites);
+            let csv = 'Verb,Category,Translation,Example\n';
+            favs.forEach(verb => {
+                const d = verbRepo.data[verb];
+                csv += `${verb},${d.category},${d.translation},"${d.example || d.infinitive + ';' + d.gerund}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'verbs_favorites.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Your Favorite Verbs', 10, 10);
+            let y = 20;
+            stateManager.get(stateManager.keys.favorites).forEach(verb => {
+                const d = verbRepo.data[verb];
+                doc.text(`${verb} (${d.category}): ${d.translation}`, 10, y);
+                y += 10;
+                doc.text(`Example: ${d.example || d.infinitive}`, 15, y);
+                y += 10;
+                if (y > 280) {
+                    doc.addPage();
+                    y = 10;
+                }
+            });
+            doc.save('verbs_favorites.pdf');
+        }
+
+        // Reset Progress
+        function resetProgress() {
+            if (confirm('Reset all progress?')) {
+                stateManager.reset();
+            }
+        }
+    </script>
+</body>
+</html>
